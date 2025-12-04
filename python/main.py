@@ -12,29 +12,27 @@ warnings.filterwarnings('ignore')
 
 app = FastAPI()
 
-# ========== ЗАГРУЗКА МОДЕЛИ ==========
-print("🔄 Загрузка модели...")
+# Загрузка модели
+print("Загрузка модели...")
 
 try:
-    # Загружаем модель и векторизатор
     model = joblib.load('python/url_model.pkl')
     vectorizer = joblib.load('python/vectorizer.pkl')
 
-    print(f"✓ Модель загружена: {type(model).__name__}")
-    print(f"✓ Векторизатор загружен: {type(vectorizer).__name__}")
+    print(f"Модель загружена: {type(model).__name__}")
+    print(f"Векторизатор загружен: {type(vectorizer).__name__}")
     print("="*70)
 
 except FileNotFoundError as e:
-    print(f"❌ Файл не найден: {e}")
+    print(f"Файл не найден: {e}")
     print("Убедитесь, что файлы 'url_model.pkl' и 'vectorizer.pkl' находятся в текущей директории")
     raise
 except Exception as e:
-    print(f"❌ Ошибка загрузки: {e}")
+    print(f"Ошибка загрузки: {e}")
     raise
 
-# ========== ФУНКЦИЯ ПРЕДСКАЗАНИЯ ==========
+# Функция предсказания
 def predict_url(url):
-    """Предсказывает безопасность URL"""
     try:
         # Векторизация URL
         url_vector = vectorizer.transform([url])
@@ -70,6 +68,3 @@ async def double_string(request: StringRequest):
             "probability": probabilities['safe']
         }
     )
-
-# Для запуска сервера используйте команду:
-# uvicorn main:app --reload
