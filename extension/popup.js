@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', function() {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     if (tabs[0]) {
       const url = tabs[0].url;
-      document.getElementById('current-url').textContent = url;
       
-      // Здесь в будущем будет анализ безопасности
-      // Пока просто показываем URL
+      // Анализ безопасности
+      // Можно было вместо запроса к localhost сделать через onnx или tensorflow
+      // Но нам было лень
       fetchLocalhostAPI(url);
     }
   });
@@ -32,26 +32,22 @@ async function fetchLocalhostAPI(url) {
         url_to_test: url,
       })
     });
-    
-    // Проверяем статус ответа
+  
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-      // 4. Парсим JSON ответ от FastAPI
-      const data = await response.json();
+    const data = await response.json();
+    const verdictText = data.prediction === 'safe' ? 'Безопасно' : 'Небезопасно';
+    const probabilityPercent = (data.probability * 100).toFixed(2);
       
     apiDataElement.innerHTML = `
-      <strong>Статус:</strong> ${response.status} ${response.statusText}<br>
-      <strong>Данные:</strong><br>
-      <pre>${JSON.stringify(data, null, 2)}</pre>
+      <strong>Вердикт:</strong> ${verdictText}<br>
+      <strong>Вероятность безопасности:</strong> ${probabilityPercent}%
     `;
     
-    // Если хотите, можно обновить статус безопасности на основе ответа
-    //updateSecurityStatus(data);
     
   } catch (error) {
-    // Обработка ошибок
     apiDataElement.textContent = `Ошибка: ${error.message}`;
     apiDataElement.className = 'api-data';
     apiResultElement.classList.add('error');
